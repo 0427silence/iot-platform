@@ -44,6 +44,30 @@ async def get_online_devices(db: AsyncSession = Depends(get_db)):
     ])
 
 
+@router.get("/trend", response_model=APIResponse)
+async def get_trend_data(db: AsyncSession = Depends(get_db), limit: int = 20):
+    from sqlalchemy import desc, select as _select
+    from app.models.device import DeviceData
+
+    result = await db.execute(
+        _select(DeviceData)
+        .where(DeviceData.temperature.isnot(None))
+        .order_by(desc(DeviceData.reported_at))
+        .limit(limit)
+    )
+    records = list(result.scalars().all())
+    records.reverse()  # 时间升序
+    return APIResponse(data=[
+        {
+            "device_id": r.device_id,
+            "temperature": float(r.temperature) if r.temperature else None,
+            "humidity": float(r.humidity) if r.humidity else None,
+            "reported_at": r.reported_at.isoformat(),
+        }
+        for r in records
+    ])
+
+
 @router.get("/devices/{device_id}/latest", response_model=APIResponse)
 async def get_device_latest_data(device_id: str, db: AsyncSession = Depends(get_db)):
     from sqlalchemy import desc, select as _select
