@@ -189,7 +189,8 @@
 
     <script>
         const API_BASE = (() => {
-            if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+            const host = window.location.hostname;
+            if (host === "localhost" || host === "127.0.0.1" || host === "" || window.location.protocol === "file:") {
                 return "http://localhost:8000/api/v1";
             }
             return "https://iot-platform-api.onrender.com/api/v1";
