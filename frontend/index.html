@@ -193,7 +193,7 @@
             if (host === "localhost" || host === "127.0.0.1" || host === "" || window.location.protocol === "file:") {
                 return "http://localhost:8000/api/v1";
             }
-            return "https://iot-platform-api.onrender.com/api/v1";
+            return "/api/v1";
         })();
         const STATUS_MAP = { 0: "离线", 1: "在线", 2: "故障" };
         const STATUS_COLOR = { 0: "bg-gray-500/10 text-gray-400", 1: "bg-emerald-500/10 text-emerald-400", 2: "bg-rose-500/10 text-rose-400" };

@@ -21,10 +21,22 @@ _active_rules: dict[str, list[AlarmRule]] = {}
 _global_rules: list[AlarmRule] = []
 
 
+_rules_loaded = False
+
+
 def set_active_rules(per_device: dict[str, list[AlarmRule]], global_rules: list[AlarmRule]) -> None:
-    global _active_rules, _global_rules
+    global _active_rules, _global_rules, _rules_loaded
     _active_rules = per_device
     _global_rules = global_rules
+    _rules_loaded = True
+
+
+async def _ensure_rules_loaded(db: AsyncSession) -> None:
+    global _rules_loaded
+    if not _rules_loaded:
+        from app.services import alarm_rule_service
+        per_device, global_rules = await alarm_rule_service.load_active_rules(db)
+        set_active_rules(per_device, global_rules)
 
 
 def _evaluate_rule(metric_value: float | int | None, operator_str: str, threshold: float) -> bool:
@@ -77,6 +89,8 @@ async def evaluate_rules(
     battery_level: float | None,
     signal_strength: int | None,
 ) -> None:
+    await _ensure_rules_loaded(db)
+
     metrics = {
         "temperature": temperature,
         "humidity": humidity,
