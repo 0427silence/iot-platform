@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IoT Platform - 设备管理看板</title>
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+<div class="app-container">
+    <!-- 顶部导航 -->
+    <header class="header">
+        <h1>🏭 IoT 设备管理看板</h1>
+        <span class="header-time" id="headerTime">--</span>
+    </header>
+
+    <!-- 统计卡片 -->
+    <section class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-label">设备总数</div>
+            <div class="stat-value" id="totalDevices">--</div>
+        </div>
+        <div class="stat-card stat-online">
+            <div class="stat-label">在线设备</div>
+            <div class="stat-value" id="onlineCount">--</div>
+        </div>
+        <div class="stat-card stat-offline">
+            <div class="stat-label">离线设备</div>
+            <div class="stat-value" id="offlineCount">--</div>
+        </div>
+        <div class="stat-card stat-fault">
+            <div class="stat-label">故障设备</div>
+            <div class="stat-value" id="faultCount">--</div>
+        </div>
+    </section>
+
+    <!-- 在线率 -->
+    <section class="online-rate-bar">
+        <div class="rate-label">在线率</div>
+        <div class="rate-track">
+            <div class="rate-fill" id="onlineRateFill" style="width: 0%"></div>
+        </div>
+        <div class="rate-value" id="onlineRateValue">--</div>
+    </section>
+
+    <!-- 设备列表 -->
+    <section class="device-section">
+        <div class="section-header">
+            <h2>设备列表</h2>
+            <button class="btn-refresh" id="btnRefresh" onclick="refreshAll()">🔄 刷新</button>
+        </div>
+        <div class="device-table-wrap">
+            <table class="device-table">
+                <thead>
+                    <tr>
+                        <th>设备 ID</th>
+                        <th>名称</th>
+                        <th>类型</th>
+                        <th>位置</th>
+                        <th>状态</th>
+                        <th>温度</th>
+                        <th>湿度</th>
+                        <th>电量</th>
+                        <th>最后上线</th>
+                    </tr>
+                </thead>
+                <tbody id="deviceTableBody">
+                    <tr><td colspan="9" class="empty-msg">加载中...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

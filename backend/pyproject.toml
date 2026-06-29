@@ -1,0 +1,13 @@
+[project]
+name = "iot-platform"
+version = "1.0.0"
+description = "企业级智能物联网设备管理与数据看板系统"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
