@@ -98,6 +98,59 @@ class DashboardSummary(BaseModel):
 # ============================================================
 # Common
 # ============================================================
+# ============================================================
+# AlarmRule
+# ============================================================
+class AlarmRuleCreate(BaseModel):
+    device_id: str | None = Field(None, max_length=64, description="设备ID，为空则创建全局规则")
+    metric_name: str = Field(..., max_length=32, description="监控指标: temperature/humidity/battery_level/signal_strength")
+    operator: str = Field(..., max_length=4, description="比较运算符: >/</>=/<=/==")
+    threshold_value: float = Field(..., description="告警阈值")
+    is_active: int = Field(default=1, ge=0, le=1, description="是否启用")
+
+
+class AlarmRuleUpdate(BaseModel):
+    metric_name: str | None = Field(None, max_length=32)
+    operator: str | None = Field(None, max_length=4)
+    threshold_value: float | None = None
+    is_active: int | None = Field(None, ge=0, le=1)
+
+
+class AlarmRuleResponse(BaseModel):
+    id: int
+    device_id: str | None
+    metric_name: str
+    operator: str
+    threshold_value: float
+    is_active: int
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+# ============================================================
+# AlarmLog
+# ============================================================
+class AlarmLogResponse(BaseModel):
+    id: int
+    device_id: str
+    rule_id: int
+    alarm_type: str
+    message: str
+    metric_value: float
+    threshold_value: float
+    status: int
+    triggered_at: datetime
+    resolved_at: datetime | None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+# ============================================================
+# Common
+# ============================================================
 class APIResponse(BaseModel):
     code: int = 0
     message: str = "ok"

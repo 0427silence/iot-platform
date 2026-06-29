@@ -4,6 +4,7 @@ import redis.asyncio as aioredis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.device import Device, DeviceData
+from app.services import alarm_service
 
 
 LUA_INGEST_SCRIPT = """
@@ -129,5 +130,16 @@ async def ingest_device_data(
         )
     except Exception:
         pass
+
+    # Step 4: 评估告警规则
+    await alarm_service.evaluate_rules(
+        db=db,
+        redis=redis,
+        device_id=device_id,
+        temperature=temperature,
+        humidity=humidity,
+        battery_level=battery_level,
+        signal_strength=signal_strength,
+    )
 
     return record
