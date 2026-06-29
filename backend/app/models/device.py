@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import BigInteger, DateTime, DECIMAL, Integer, JSON, String, Text, func
+from sqlalchemy import BigInteger, DateTime, DECIMAL, ForeignKey, Integer, JSON, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -29,7 +29,9 @@ class DeviceData(Base):
     __tablename__ = "device_data"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True, comment="主键ID，自增")
-    device_id: Mapped[str] = mapped_column(String(64), nullable=False, comment="设备唯一标识符")
+    device_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("devices.device_id"), nullable=False, comment="设备唯一标识符"
+    )
     temperature: Mapped[float | None] = mapped_column(DECIMAL(5, 2), default=None, comment="温度读数(℃)")
     humidity: Mapped[float | None] = mapped_column(DECIMAL(5, 2), default=None, comment="湿度读数(%)")
     battery_level: Mapped[float | None] = mapped_column(DECIMAL(5, 2), default=None, comment="电池电量(%)")
