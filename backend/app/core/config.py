@@ -17,12 +17,14 @@ class Settings(BaseSettings):
     DB_POOL_SIZE: int = 10
     DB_POOL_RECYCLE: int = 3600
     DB_ECHO: bool = False
+    DB_SSL: bool = False  # 云数据库通常需要开启 SSL
 
     # --- Redis ---
     REDIS_HOST: str = "127.0.0.1"
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ""
     REDIS_DB: int = 0
+    REDIS_SSL: bool = False
     REDIS_POOL_MAX_CONNECTIONS: int = 20
 
     # --- 服务端口 ---
@@ -34,11 +36,20 @@ class Settings(BaseSettings):
 
     @property
     def database_url(self) -> str:
-        return (
+        url = (
             f"mysql+aiomysql://{self.DB_USER}:{self.DB_PASSWORD}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
             f"?charset=utf8mb4"
         )
+        if self.DB_SSL:
+            url += "&ssl=true"
+        return url
+
+    @property
+    def redis_url(self) -> str:
+        if self.REDIS_PASSWORD:
+            return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
     @property
     def cors_origins_list(self) -> list[str]:

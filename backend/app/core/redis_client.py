@@ -13,6 +13,8 @@ async def get_redis() -> aioredis.Redis:
             port=settings.REDIS_PORT,
             password=settings.REDIS_PASSWORD or None,
             db=settings.REDIS_DB,
+            ssl=settings.REDIS_SSL,
+            ssl_cert_reqs=None if settings.REDIS_SSL else "required",
             max_connections=settings.REDIS_POOL_MAX_CONNECTIONS,
             decode_responses=True,
         )
