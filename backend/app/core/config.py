@@ -36,14 +36,11 @@ class Settings(BaseSettings):
 
     @property
     def database_url(self) -> str:
-        url = (
+        return (
             f"mysql+aiomysql://{self.DB_USER}:{self.DB_PASSWORD}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
             f"?charset=utf8mb4"
         )
-        if self.DB_SSL:
-            url += "&ssl=true"
-        return url
 
     @property
     def redis_url(self) -> str:
