@@ -44,3 +44,16 @@ app.include_router(v1_router)
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "service": settings.APP_NAME}
+
+
+@app.get("/debug/db")
+async def debug_db():
+    from app.core.config import settings as s
+    try:
+        async with async_session_factory() as session:
+            from sqlalchemy import text
+            result = await session.execute(text("SELECT 1"))
+            row = result.scalar()
+        return {"status": "ok", "db_result": row, "db_host": s.DB_HOST, "db_port": s.DB_PORT}
+    except Exception as e:
+        return {"status": "error", "detail": str(e), "db_host": s.DB_HOST, "db_port": s.DB_PORT}
