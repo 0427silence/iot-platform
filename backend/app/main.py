@@ -53,7 +53,9 @@ async def debug_db():
         async with async_session_factory() as session:
             from sqlalchemy import text
             result = await session.execute(text("SELECT 1"))
-            row = result.scalar()
-        return {"status": "ok", "db_result": row, "db_host": s.DB_HOST, "db_port": s.DB_PORT}
+            result.scalar()
+            tables = await session.execute(text("SHOW TABLES"))
+            table_names = [row[0] for row in tables.fetchall()]
+        return {"status": "ok", "db_host": s.DB_HOST, "db_port": s.DB_PORT, "tables": table_names}
     except Exception as e:
-        return {"status": "error", "detail": str(e), "db_host": s.DB_HOST, "db_port": s.DB_PORT}
+        return {"status": "error", "detail": str(e)}
