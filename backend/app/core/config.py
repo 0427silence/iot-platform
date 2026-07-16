@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str = ""
     REDIS_DB: int = 0
     REDIS_SSL: bool = False
+    REDIS_ENABLED: bool = True
     REDIS_POOL_MAX_CONNECTIONS: int = 20
 
     # --- 服务端口 ---

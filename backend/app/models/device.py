@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import BigInteger, DateTime, DECIMAL, ForeignKey, Integer, JSON, String, Text, func
+from sqlalchemy import DateTime, DECIMAL, ForeignKey, Integer, JSON, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -9,7 +9,7 @@ from app.core.database import Base
 class Device(Base):
     __tablename__ = "devices"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True, comment="主键ID，自增")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="主键ID，自增")
     device_id: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, comment="设备唯一标识符")
     device_name: Mapped[str] = mapped_column(String(128), nullable=False, comment="设备名称")
     device_type: Mapped[str] = mapped_column(String(64), nullable=False, comment="设备类型")
@@ -28,7 +28,7 @@ class Device(Base):
 class DeviceData(Base):
     __tablename__ = "device_data"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True, comment="主键ID，自增")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="主键ID，自增")
     device_id: Mapped[str] = mapped_column(
         String(64), ForeignKey("devices.device_id"), nullable=False, comment="设备唯一标识符"
     )
@@ -46,7 +46,7 @@ class DeviceData(Base):
 class AlarmRule(Base):
     __tablename__ = "alarm_rules"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True, comment="主键ID，自增")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="主键ID，自增")
     device_id: Mapped[str | None] = mapped_column(
         String(64), ForeignKey("devices.device_id"), default=None, comment="设备ID，NULL表示全局规则"
     )
@@ -65,12 +65,12 @@ class AlarmRule(Base):
 class AlarmLog(Base):
     __tablename__ = "alarm_logs"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True, comment="主键ID，自增")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="主键ID，自增")
     device_id: Mapped[str] = mapped_column(
         String(64), ForeignKey("devices.device_id"), nullable=False, comment="设备ID"
     )
     rule_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("alarm_rules.id"), nullable=False, comment="触发的规则ID"
+        Integer, ForeignKey("alarm_rules.id"), nullable=False, comment="触发的规则ID"
     )
     alarm_type: Mapped[str] = mapped_column(String(64), nullable=False, comment="告警类型标识")
     message: Mapped[str] = mapped_column(Text, nullable=False, comment="告警消息内容")

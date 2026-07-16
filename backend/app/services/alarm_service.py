@@ -112,10 +112,12 @@ async def evaluate_rules(
 
         if triggered:
             # 检查去重
-            try:
-                existing = await redis.hget(alarm_key, "status")
-            except Exception:
-                existing = None
+            existing = None
+            if redis is not None:
+                try:
+                    existing = await redis.hget(alarm_key, "status")
+                except Exception:
+                    existing = None
 
             if existing == b"active" or existing == "active":
                 continue
@@ -137,34 +139,37 @@ async def evaluate_rules(
             db.add(alarm_log)
             await db.flush()
 
-            try:
-                await redis.hset(alarm_key, mapping={
-                    "status": "active",
-                    "triggered_at": now.isoformat(),
-                })
-                await redis.expire(alarm_key, 86400)
+            if redis is not None:
+                try:
+                    await redis.hset(alarm_key, mapping={
+                        "status": "active",
+                        "triggered_at": now.isoformat(),
+                    })
+                    await redis.expire(alarm_key, 86400)
 
-                feed_entry = {
-                    "device_id": device_id,
-                    "alarm_type": alarm_type,
-                    "message": message,
-                    "metric_value": float(metric_value),
-                    "threshold_value": rule.threshold_value,
-                    "triggered_at": now.isoformat(),
-                }
-                feed_json = json.dumps(feed_entry, ensure_ascii=False)
-                await redis.lpush("alarms:feed", feed_json)
-                await redis.ltrim("alarms:feed", 0, 49)
-                await redis.hset("alarms:active", device_id, feed_json)
-            except Exception:
-                pass
+                    feed_entry = {
+                        "device_id": device_id,
+                        "alarm_type": alarm_type,
+                        "message": message,
+                        "metric_value": float(metric_value),
+                        "threshold_value": rule.threshold_value,
+                        "triggered_at": now.isoformat(),
+                    }
+                    feed_json = json.dumps(feed_entry, ensure_ascii=False)
+                    await redis.lpush("alarms:feed", feed_json)
+                    await redis.ltrim("alarms:feed", 0, 49)
+                    await redis.hset("alarms:active", device_id, feed_json)
+                except Exception:
+                    pass
 
         else:
             # 检查是否有活跃告警需要自动恢复
-            try:
-                existing = await redis.hget(alarm_key, "status")
-            except Exception:
-                existing = None
+            existing = None
+            if redis is not None:
+                try:
+                    existing = await redis.hget(alarm_key, "status")
+                except Exception:
+                    existing = None
 
             if existing == b"active" or existing == "active":
                 now = datetime.now()
@@ -184,26 +189,27 @@ async def evaluate_rules(
                     log_record.status = 1
                     log_record.resolved_at = now
 
-                try:
-                    await redis.hset(alarm_key, mapping={
-                        "status": "resolved",
-                        "resolved_at": now.isoformat(),
-                    })
-                    await redis.hdel("alarms:active", device_id)
+                if redis is not None:
+                    try:
+                        await redis.hset(alarm_key, mapping={
+                            "status": "resolved",
+                            "resolved_at": now.isoformat(),
+                        })
+                        await redis.hdel("alarms:active", device_id)
 
-                    resolve_entry = {
-                        "device_id": device_id,
-                        "alarm_type": f"{rule.metric_name}_resolved",
-                        "message": _build_resolve_message(device_id, rule, metric_value),
-                        "metric_value": float(metric_value),
-                        "threshold_value": rule.threshold_value,
-                        "triggered_at": now.isoformat(),
-                    }
-                    resolve_json = json.dumps(resolve_entry, ensure_ascii=False)
-                    await redis.lpush("alarms:feed", resolve_json)
-                    await redis.ltrim("alarms:feed", 0, 49)
-                except Exception:
-                    pass
+                        resolve_entry = {
+                            "device_id": device_id,
+                            "alarm_type": f"{rule.metric_name}_resolved",
+                            "message": _build_resolve_message(device_id, rule, metric_value),
+                            "metric_value": float(metric_value),
+                            "threshold_value": rule.threshold_value,
+                            "triggered_at": now.isoformat(),
+                        }
+                        resolve_json = json.dumps(resolve_entry, ensure_ascii=False)
+                        await redis.lpush("alarms:feed", resolve_json)
+                        await redis.ltrim("alarms:feed", 0, 49)
+                    except Exception:
+                        pass
 
 
 async def get_active_alarms(redis: aioredis.Redis) -> list[dict]:

@@ -12,5 +12,5 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-async def get_redis() -> aioredis.Redis:
+async def get_redis() -> aioredis.Redis | None:
     return await _get_redis()

@@ -64,10 +64,11 @@ async def delete_rule(rule_id: int, db: AsyncSession = Depends(get_db)):
 @router.get("/active", response_model=APIResponse)
 async def get_active_alarms(db: AsyncSession = Depends(get_db)):
     redis = await get_redis()
-    alarms = await alarm_service.get_active_alarms(redis)
-    if alarms:
-        return APIResponse(data=alarms)
-    # Redis 不可用或无数据 → MySQL 降级
+    if redis is not None:
+        alarms = await alarm_service.get_active_alarms(redis)
+        if alarms:
+            return APIResponse(data=alarms)
+    # Redis 不可用或无数据 → MySQL/SQLite 降级
     logs = await alarm_service.get_alarm_logs(db, limit=50, offset=0)
     return APIResponse(data=[
         {
@@ -97,10 +98,11 @@ async def get_alarm_logs(
 @router.get("/feed", response_model=APIResponse)
 async def get_alarm_feed(limit: int = Query(20, ge=1, le=50), db: AsyncSession = Depends(get_db)):
     redis = await get_redis()
-    feed = await alarm_service.get_alarm_feed(redis, limit=limit)
-    if feed:
-        return APIResponse(data=feed)
-    # Redis 不可用或无数据 → MySQL 降级
+    if redis is not None:
+        feed = await alarm_service.get_alarm_feed(redis, limit=limit)
+        if feed:
+            return APIResponse(data=feed)
+    # Redis 不可用或无数据 → MySQL/SQLite 降级
     logs = await alarm_service.get_alarm_logs(db, limit=limit, offset=0)
     return APIResponse(data=[
         {

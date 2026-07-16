@@ -103,33 +103,34 @@ async def ingest_device_data(
     await db.flush()
 
     # Step 3: Redis 原子更新（Redis 不可用时静默降级）
-    try:
-        status_key = f"device:status:{device_id}"
-        latest_key = f"device:latest:{device_id}"
-        report_time_str = reported_at.strftime("%Y-%m-%dT%H:%M:%S")
+    if redis is not None:
+        try:
+            status_key = f"device:status:{device_id}"
+            latest_key = f"device:latest:{device_id}"
+            report_time_str = reported_at.strftime("%Y-%m-%dT%H:%M:%S")
 
-        await redis.eval(
-            LUA_INGEST_SCRIPT,
-            5,
-            status_key,
-            latest_key,
-            "devices:online",
-            "devices:fault",
-            "dashboard:summary",
-            device_id,
-            "1",  # status = online
-            device_name,
-            device_type,
-            location,
-            firmware_version,
-            str(temperature) if temperature is not None else "",
-            str(humidity) if humidity is not None else "",
-            str(battery_level) if battery_level is not None else "",
-            str(signal_strength) if signal_strength is not None else "",
-            report_time_str,
-        )
-    except Exception:
-        pass
+            await redis.eval(
+                LUA_INGEST_SCRIPT,
+                5,
+                status_key,
+                latest_key,
+                "devices:online",
+                "devices:fault",
+                "dashboard:summary",
+                device_id,
+                "1",  # status = online
+                device_name,
+                device_type,
+                location,
+                firmware_version,
+                str(temperature) if temperature is not None else "",
+                str(humidity) if humidity is not None else "",
+                str(battery_level) if battery_level is not None else "",
+                str(signal_strength) if signal_strength is not None else "",
+                report_time_str,
+            )
+        except Exception:
+            pass
 
     # Step 4: 评估告警规则
     await alarm_service.evaluate_rules(
