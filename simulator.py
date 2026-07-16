@@ -10,6 +10,7 @@ IoT 设备数据模拟器 — 独立脚本
 
 import asyncio
 import logging
+import os
 import random
 import sys
 from datetime import datetime
@@ -19,7 +20,7 @@ import httpx
 # ============================================================
 # 配置常量
 # ============================================================
-API_BASE = "http://localhost:8000/api/v1"
+API_BASE = os.getenv("API_BASE", "http://localhost:8000/api/v1")
 REPORT_INTERVAL = 5  # 上报间隔（秒）
 REQUEST_TIMEOUT = 10  # HTTP 请求超时（秒）
 
