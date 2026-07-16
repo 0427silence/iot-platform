@@ -1,26 +1,30 @@
-.PHONY: help dev install db-init db-test lint clean
+.PHONY: help dev dev-full install db-init db-test lint clean
 
-help:  ## 显示所有可用命令
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+help:  ## Show all commands
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-18s\033[0m %s\n", $$1, $$2}'
 
-install:  ## 安装项目依赖
+install:  ## Install Python dependencies
 	cd backend && pip install -r requirements.txt
 
-dev:  ## 启动开发服务器
-	cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+dev:  ## Start backend (SQLite, no Docker) + frontend dev server
+	@echo "Starting backend (SQLite mode)..."
+	cd backend && DB_TYPE=sqlite REDIS_ENABLED=false uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 &
+	@echo "Starting frontend dev server..."
+	cd frontend && npm run dev
 
-db-init:  ## 初始化 MySQL 数据库表结构
-	@echo "正在执行 db/init.sql ..."
+dev-full:  ## Start with Docker (MySQL + Redis + backend)
+	docker compose up --build
+
+db-init:  ## Initialize MySQL tables
 	@mysql -u root -p < db/init.sql
-	@echo "数据库初始化完成。"
 
-db-test:  ## 测试数据库连接
+db-test:  ## Test database connection
 	python scripts/test_db.py
 
-lint:  ## 代码检查
+lint:  ## Run code checks
 	ruff check backend/ scripts/
 
-clean:  ## 清理临时文件
+clean:  ## Clean temp files
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
-	@echo "清理完成。"
+	@echo "Cleaned."

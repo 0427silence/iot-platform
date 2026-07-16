@@ -70,3 +70,4 @@ htmlcov/
 .cursor/
 
 .vercel
+backend/data/
