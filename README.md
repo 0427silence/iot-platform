@@ -4,7 +4,6 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688.svg)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18-61DAFB.svg)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg)](https://www.typescriptlang.org)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 A full-stack IoT device management and real-time monitoring dashboard. Register devices, ingest telemetry data, visualize trends, and configure alarm rules — all with a clean dark-themed UI.
 
@@ -135,6 +134,3 @@ pytest tests/ -v
 
 Tests use SQLite in-memory — no external services needed.
 
-## License
-
-MIT
