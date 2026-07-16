@@ -71,6 +71,7 @@ htmlcov/
 
 .vercel
 backend/data/
+data/
 
 # Claude Code agent files (not part of project)
 .agents/
