@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     DB_ECHO: bool = False
     DB_SSL: bool = False  # 云数据库通常需要开启 SSL
 
+    # --- Database type: "mysql" | "sqlite" ---
+    DB_TYPE: str = "mysql"
+
     # --- Redis ---
     REDIS_HOST: str = "127.0.0.1"
     REDIS_PORT: int = 6379
@@ -36,6 +39,8 @@ class Settings(BaseSettings):
 
     @property
     def database_url(self) -> str:
+        if self.DB_TYPE == "sqlite":
+            return "sqlite+aiosqlite:///./data/iot.db"
         return (
             f"mysql+aiomysql://{self.DB_USER}:{self.DB_PASSWORD}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
