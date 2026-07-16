@@ -71,3 +71,7 @@ htmlcov/
 
 .vercel
 backend/data/
+
+# Claude Code agent files (not part of project)
+.agents/
+skills-lock.json
