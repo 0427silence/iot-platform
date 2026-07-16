@@ -41,6 +41,96 @@ docker compose up --build
 
 This starts MySQL 8, Redis 7, and the FastAPI backend.
 
+## Usage Guide
+
+### 1. Add a Device
+
+**Via Web UI:** Click **Devices** in the top nav → **+ Add Device** → fill in the form.
+
+**Via API:**
+
+```bash
+curl -X POST http://localhost:8000/api/v1/devices \
+  -H "Content-Type: application/json" \
+  -d '{
+    "device_id": "stm32-sensor-001",
+    "device_name": "STM32 Temperature Sensor",
+    "device_type": "temperature_sensor",
+    "location": "Lab Room 302"
+  }'
+```
+
+**Device types:** `temperature_sensor`, `humidity_sensor`, `multi_sensor`, `gateway`
+
+### 2. Report Data
+
+**Via simulator (auto):** `python simulator.py` — simulates 5 devices with random telemetry every 5 seconds.
+
+**Via API (for real hardware like STM32 / ESP32 / Raspberry Pi):**
+
+```bash
+curl -X POST http://localhost:8000/api/v1/data/report \
+  -H "Content-Type: application/json" \
+  -d '{
+    "device_id": "stm32-sensor-001",
+    "temperature": 26.5,
+    "humidity": 62.3,
+    "battery_level": 85.0,
+    "signal_strength": -42,
+    "reported_at": "2026-07-16T15:30:00"
+  }'
+```
+
+The device must be registered first, otherwise the server returns `404`. Only `device_id` and `reported_at` are required — all sensor fields are optional.
+
+**STM32 / Arduino example (pseudocode):**
+
+```cpp
+// ESP8266 / ESP32 — POST sensor data every 5 seconds
+String json = "{\"device_id\":\"stm32-sensor-001\",\"temperature\":" +
+              String(temp) + ",\"humidity\":" + String(humid) +
+              ",\"reported_at\":\"" + getISO8601Time() + "\"}";
+
+http.begin("http://192.168.1.100:8000/api/v1/data/report");
+http.addHeader("Content-Type", "application/json");
+int code = http.POST(json);
+```
+
+> Replace `192.168.1.100` with the IP of the machine running the backend.
+
+### 3. Set Up Alarm Rules
+
+**Via API:**
+
+```bash
+curl -X POST http://localhost:8000/api/v1/alarms/rules \
+  -H "Content-Type: application/json" \
+  -d '{
+    "device_id": "stm32-sensor-001",
+    "metric_name": "temperature",
+    "operator": ">",
+    "threshold_value": 35.0
+  }'
+```
+
+This triggers an alarm when the device reports temperature above 35°C. Use `"device_id": null` to create a global rule that applies to all devices.
+
+**Supported metrics:** `temperature`, `humidity`, `battery_level`, `signal_strength`
+**Operators:** `>`, `<`, `>=`, `<=`, `==`
+
+### 4. View the Dashboard
+
+Open **http://localhost:3000**. The dashboard shows:
+
+- **Stat cards** — total devices, online/offline counts, active alarms
+- **Trend chart** — temperature & humidity over time (Recharts)
+- **Online devices table** — which devices are currently sending data
+- **Alarm badge** — red dot in the top-right corner when alarms are active
+
+Alarms auto-resolve when the metric returns within the threshold on the next data report.
+
+---
+
 ## Architecture
 
 ```
