@@ -49,6 +49,8 @@ async def health_check():
 @app.get("/debug/db")
 async def debug_db():
     from app.core.config import settings as s
+    if s.APP_ENV != "development":
+        return {"status": "error", "detail": "debug endpoint disabled in production"}
     try:
         async with async_session_factory() as session:
             from sqlalchemy import text

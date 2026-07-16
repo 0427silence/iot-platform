@@ -6,3 +6,5 @@ venv
 *.egg-info
 .git
 .gitignore
+.vercel
+.claude

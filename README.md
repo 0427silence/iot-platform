@@ -45,7 +45,6 @@ iot-platform/
 ├── db/
 │   └── init.sql                # MySQL 建库建表脚本
 ├── docker-compose.yml          # 全栈一键部署编排
-├── render.yaml                 # Render 蓝图部署配置
 ├── simulator.py                # 设备数据模拟器
 ├── Makefile                    # 常用命令快捷入口
 └── README.md
@@ -213,7 +212,10 @@ curl http://localhost:8000/health
 
 1. Fork 本项目到你的 GitHub 账号
 2. 注册 [Render](https://render.com) → New Web Service → 连接 GitHub
-3. 选择仓库，Render 会自动识别项目根目录的 `render.yaml` 蓝图文件
+3. 选择仓库，配置如下：
+   - **Runtime**: Python 3
+   - **Build Command**: `pip install -r backend/requirements.txt`
+   - **Start Command**: `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 4. **手动设置以下环境变量** (Render Dashboard → Environment)：
 
 | 环境变量 | 说明 | 示例 |
@@ -221,7 +223,7 @@ curl http://localhost:8000/health
 | `APP_ENV` | 运行模式 | `production` |
 | `APP_DEBUG` | 调试开关 | `false` |
 | `SECRET_KEY` | 加密密钥 | 随机 32 位字符串 |
-| `CORS_ORIGINS` | CORS 允许域 | `*` 或你的域名 |
+| `CORS_ORIGINS` | CORS 允许域 | `https://your-frontend.com` |
 | `DB_HOST` | TiDB Cloud 主机 | `gateway01.xxx.tidbcloud.com` |
 | `DB_PORT` | TiDB 端口 | `4000` |
 | `DB_USER` | 数据库用户 | `xxx.root` |
