@@ -9,6 +9,7 @@ IoT 设备数据模拟器 — 独立脚本
 """
 
 import asyncio
+import io
 import logging
 import os
 import random
@@ -85,7 +86,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    stream=sys.stdout,
+    stream=io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8'),
 )
 logger = logging.getLogger("simulator")
 
