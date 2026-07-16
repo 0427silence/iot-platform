@@ -9,6 +9,12 @@ A full-stack IoT device management and real-time monitoring dashboard. Register 
 
 ## Quick Start (No Docker Required)
 
+**Prerequisites:** Python 3.11+ and Node.js 18+
+
+**Windows:** double-click `start.bat`
+
+**macOS / Linux:**
+
 ```bash
 # 1. Install backend dependencies
 cd backend && pip install -r requirements.txt
